@@ -1,0 +1,28 @@
+# imagem que irá construir a aplicação
+FROM ubuntu:latest AS build 
+
+RUN apt-get update
+# instalando o Java 17
+RUN apt-get install openjdk-17-jdk -y
+
+# Copiando todo o conteudo do diretório da construção local para o diretorio da imagem que está sendo construida
+COPY . .
+
+
+# instalando o maven
+RUN apt-get install maven - y
+
+# Construindo o .jar da aplicação
+RUN mvn clean install
+
+# construindo uma imagem base do java, para poder rodar a aplicação
+FROM openjdk:17-jdk-slim
+
+# passando a porta que a aplicação ira usar
+EXPOSE 8080
+
+# Copiando o arquivo .jar local para o diretório da imagem
+COPY --from=build /target/todolist-1.0.0.jar app.jar
+
+# Rodando o comando "java -jar app.jar" que irá estartar a aplicação
+ENTRYPOINT [ "java", "-jar", "app.jar" ]
